@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nómade — Dashboard Interno</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --orange:#FF5A1F;--orange-dim:rgba(255,90,31,0.12);
+  --green:#16A34A;--green-dim:rgba(22,163,74,0.1);
+  --red:#DC2626;--red-dim:rgba(220,38,38,0.1);
+  --yellow:#D97706;--yellow-dim:rgba(217,119,6,0.1);
+  --dark:#0C0C0C;--sidebar:#111;--bg:#F4F3F0;--card:#fff;
+  --border:#E5E4E1;--gray:#6B7280;
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--dark);min-height:100vh;}
+
+/* ── LOGIN ── */
+#page-login{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--dark);position:relative;overflow:hidden;
+}
+#page-login::before{
+  content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);
+  width:800px;height:800px;
+  background:radial-gradient(ellipse,rgba(255,90,31,0.08) 0%,transparent 65%);
+  pointer-events:none;
+}
+.login-card{
+  background:#161616;border:1px solid rgba(255,255,255,0.07);
+  border-radius:24px;padding:40px;width:100%;max-width:380px;
+  position:relative;z-index:1;
+}
+.login-brand{font-family:'Outfit',sans-serif;font-weight:900;font-size:22px;color:white;letter-spacing:-0.04em;margin-bottom:2px;}
+.login-brand span{color:var(--orange);}
+.login-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.25);margin-bottom:32px;}
+.login-title{font-family:'Outfit',sans-serif;font-weight:800;font-size:20px;color:white;margin-bottom:6px;}
+.login-sub{font-size:13px;color:rgba(255,255,255,0.35);margin-bottom:24px;}
+.login-field{margin-bottom:14px;}
+.login-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);display:block;margin-bottom:6px;}
+.login-input{
+  width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;padding:11px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;
+  outline:none;transition:border-color 0.2s;
+}
+.login-input:focus{border-color:rgba(255,90,31,0.5);}
+.login-btn{
+  width:100%;background:var(--orange);color:white;border:none;border-radius:50px;
+  padding:13px;font-family:'Outfit',sans-serif;font-weight:700;font-size:15px;
+  cursor:pointer;transition:all 0.2s;box-shadow:0 4px 20px rgba(255,90,31,0.3);margin-top:4px;
+}
+.login-btn:hover{background:#E04010;transform:translateY(-1px);}
+.login-error{background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#FCA5A5;margin-top:12px;display:none;}
+
+/* ── APP ── */
+#page-app{display:none;min-height:100vh;background:var(--bg);}
+.app-layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+
+/* Sidebar */
+.sidebar{background:var(--dark);display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;height:100vh;}
+.sb-brand{padding:0 20px 28px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.sb-logo{font-family:'Outfit',sans-serif;font-weight:900;font-size:20px;color:white;letter-spacing:-0.04em;}
+.sb-logo span{color:var(--orange);}
+.sb-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.2);margin-top:3px;}
+.sb-nav{padding:16px 12px;flex:1;}
+.sb-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.2);padding:0 8px;margin:16px 0 6px;}
+.sb-item{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;
+  border:none;background:none;cursor:pointer;width:100%;text-align:left;
+  color:rgba(255,255,255,0.4);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  transition:all 0.15s;
+}
+.sb-item:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);}
+.sb-item.active{background:rgba(255,90,31,0.12);color:var(--orange);}
+.sb-icon{font-size:15px;width:18px;text-align:center;}
+.sb-badge{margin-left:auto;background:var(--orange);color:white;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;}
+.sb-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);}
+.sb-sync{font-size:11px;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:6px;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.sync-dot.loading{background:var(--orange);animation:blink 0.8s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.sb-logout{display:flex;align-items:center;gap:6px;padding:8px 0;border:none;background:none;cursor:pointer;color:rgba(255,255,255,0.2);font-size:12px;font-family:'DM Sans',sans-serif;transition:color 0.2s;margin-top:8px;}
+.sb-logout:hover{color:rgba(255,255,255,0.5);}
+
+/* Main */
+.main{padding:32px 36px;overflow-y:auto;}
+.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.page-title{font-family:'Outfit',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.03em;}
+.page-sub{font-size:13px;color:var(--gray);margin-top:2px;}
+.refresh-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:50px;border:1.5px solid var(--border);background:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:var(--gray);transition:all 0.15s;}
+.refresh-btn:hover{border-color:var(--orange);color:var(--orange);}
+
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* KPI Cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.kpi-card{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:20px;}
+.kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray);margin-bottom:10px;}
+.kpi-num{font-family:'Outfit',sans-serif;font-weight:900;font-size:2rem;letter-spacing:-0.04em;line-height:1;}
+.kpi-sub{font-size:12px;color:var(--gray);margin-top:6px;}
+.kpi-card.orange .kpi-num{color:var(--orange);}
+.kpi-card.green .kpi-num{color:var(--green);}
+.kpi-card.dark .kpi-num{color:var(--dark);}
+.kpi-card.yellow .kpi-num{color:var(--yellow);}
+
+/* Charts row */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+.chart-card{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:20px;}
+.chart-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;margin-bottom:16px;}
+
+/* Mini bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--orange);opacity:0.7;transition:opacity 0.15s;min-height:4px;}
+.bar:hover{opacity:1;}
+.bar-label{font-size:9px;color:var(--gray);font-weight:600;}
+
+/* Pie-like donut */
+.donut-wrap{display:flex;align-items:center;gap:20px;}
+.donut{width:80px;height:80px;border-radius:50%;flex-shrink:0;}
+.donut-legend{display:flex;flex-direction:column;gap:6px;}
+.dl-item{display:flex;align-items:center;gap:7px;font-size:12px;}
+.dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dl-label{color:var(--gray);}
+.dl-val{font-weight:700;color:var(--dark);margin-left:auto;}
+
+/* Tables */
+.table-card{background:white;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:20px;}
+.table-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.table-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;}
+.table-count{font-size:12px;color:var(--gray);}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray);padding:10px 16px;text-align:left;background:#FAFAF9;border-bottom:1px solid var(--border);}
+td{font-size:13px;padding:12px 16px;border-bottom:1px solid var(--border);color:var(--dark);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#FAFAF9;}
+.mono{font-family:'DM Mono',monospace;font-size:12px;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:50px;padding:3px 10px;font-size:11px;font-weight:700;}
+.badge.pendiente{background:var(--yellow-dim);color:var(--yellow);}
+.badge.aceptado{background:var(--green-dim);color:var(--green);}
+.badge.rechazado{background:var(--red-dim);color:var(--red);}
+.badge.activo{background:var(--green-dim);color:var(--green);}
+.badge.inactivo{background:rgba(0,0,0,0.05);color:var(--gray);}
+.badge.nuevo{background:var(--orange-dim);color:var(--orange);}
+
+/* Empty */
+.empty{text-align:center;padding:48px 20px;color:var(--gray);}
+.empty-icon{font-size:32px;margin-bottom:10px;}
+.empty-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:15px;color:var(--dark);margin-bottom:6px;}
+
+/* Membresías */
+.mem-form{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:24px;margin-bottom:20px;}
+.mem-form-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px;}
+.mem-grid{display:grid;grid-template-columns:repeat(5,1fr) auto;gap:10px;align-items:end;}
+.mem-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray);display:block;margin-bottom:5px;}
+.mem-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--dark);outline:none;transition:border-color 0.2s;}
+.mem-input:focus{border-color:var(--orange);}
+.mem-add-btn{background:var(--orange);color:white;border:none;border-radius:8px;padding:9px 18px;font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.mem-add-btn:hover{background:#E04010;}
+.mrr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.mrr-card{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:20px;}
+.mrr-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray);margin-bottom:10px;}
+.mrr-num{font-family:'Outfit',sans-serif;font-weight:900;font-size:1.8rem;letter-spacing:-0.04em;line-height:1;}
+.mrr-sub{font-size:12px;color:var(--gray);margin-top:6px;}
+.mrr-card.green .mrr-num{color:var(--green);}
+.mrr-card.orange .mrr-num{color:var(--orange);}
+.mrr-card.dark .mrr-num{color:var(--dark);}
+.mrr-card.red .mrr-num{color:var(--red);}
+.plan-free{background:var(--green-dim);color:var(--green);}
+.plan-basic{background:var(--orange-dim);color:var(--orange);}
+.plan-pro{background:rgba(99,102,241,0.1);color:#6366F1;}
+.status-activa{background:var(--green-dim);color:var(--green);}
+.status-prueba{background:var(--yellow-dim);color:var(--yellow);}
+.status-vencida{background:var(--red-dim);color:var(--red);}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--gray);font-size:14px;padding:4px 8px;border-radius:6px;transition:all 0.15s;}
+.del-btn:hover{background:var(--red-dim);color:var(--red);}
+
+/* Loading spinner */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Alert */
+.alert{display:flex;align-items:flex-start;gap:10px;background:var(--orange-dim);border:1px solid rgba(255,90,31,0.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#9A3510;}
+.alert strong{color:var(--orange);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LOGIN ═══════════ -->
+<div id="page-login">
+  <div class="login-card">
+    <div class="login-brand">N<span>ó</span>made</div>
+    <div class="login-badge">Dashboard interno</div>
+    <div class="login-title">Acceso restringido</div>
+    <div class="login-sub">Solo para el equipo de Nómade.</div>
+    <div class="login-field">
+      <label class="login-label">Usuario</label>
+      <input class="login-input" type="text" id="l-user" placeholder="nomade" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <div class="login-field">
+      <label class="login-label">Contraseña</label>
+      <input class="login-input" type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar →</button>
+    <div class="login-error" id="l-error">Usuario o contraseña incorrectos.</div>
+  </div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div id="page-app">
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sb-brand">
+        <div class="sb-logo">N<span>ó</span>made</div>
+        <div class="sb-tag">Dashboard interno</div>
+      </div>
+      <div class="sb-nav">
+        <div class="sb-section">Panel</div>
+        <button class="sb-item active" id="nav-kpis" onclick="showTab('kpis')">
+          <span class="sb-icon">📊</span> KPIs generales
+        </button>
+        <button class="sb-item" id="nav-leads" onclick="showTab('leads')">
+          <span class="sb-icon">🏢</span> Leads empresas
+          <span class="sb-badge" id="leads-badge" style="display:none">0</span>
+        </button>
+        <button class="sb-item" id="nav-pedidos" onclick="showTab('pedidos')">
+          <span class="sb-icon">📦</span> Pedidos web
+          <span class="sb-badge" id="pedidos-badge" style="display:none">0</span>
+        </button>
+        <button class="sb-item" id="nav-fleteros" onclick="showTab('fleteros')">
+          <span class="sb-icon">🚛</span> Fleteros
+        </button>
+        <button class="sb-item" id="nav-membresias" onclick="showTab('membresias')">
+          <span class="sb-icon">💰</span> Membresías
+          <span class="sb-badge" id="mem-badge" style="display:none">0</span>
+        </button>
+      </div>
+      <div class="sb-footer">
+        <div class="sb-sync"><div class="sync-dot" id="sync-dot"></div><span id="sync-text">Conectando...</span></div>
+        <button class="sb-logout" onclick="doLogout()">↩ Cerrar sesión</button>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- ── KPIs ── -->
+      <div class="tab-panel active" id="tab-kpis">
+        <div class="page-hdr">
+          <div>
+            <div class="page-title">KPIs generales</div>
+            <div class="page-sub" id="kpi-fecha">Cargando...</div>
+          </div>
+          <button class="refresh-btn" onclick="loadAll()">↻ Actualizar</button>
+        </div>
+
+        <div id="kpi-alert" style="display:none" class="alert">
+          <span>⚠️</span>
+          <div><strong id="alert-msg"></strong></div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card orange">
+            <div class="kpi-label">Pedidos totales</div>
+            <div class="kpi-num" id="k-pedidos">—</div>
+            <div class="kpi-sub">Enviados via web</div>
+          </div>
+          <div class="kpi-card green">
+            <div class="kpi-label">Pedidos aceptados</div>
+            <div class="kpi-num" id="k-aceptados">—</div>
+            <div class="kpi-sub" id="k-conv">—% conversión</div>
+          </div>
+          <div class="kpi-card dark">
+            <div class="kpi-label">Facturación estimada</div>
+            <div class="kpi-num" id="k-facturacion">—</div>
+            <div class="kpi-sub">Pedidos aceptados × precio</div>
+          </div>
+          <div class="kpi-card yellow">
+            <div class="kpi-label">Leads empresas</div>
+            <div class="kpi-num" id="k-leads">—</div>
+            <div class="kpi-sub">Registros del formulario</div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-title">Pedidos por estado</div>
+            <div class="donut-wrap">
+              <canvas id="donut-chart" width="80" height="80" class="donut"></canvas>
+              <div class="donut-legend" id="donut-legend"></div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Pedidos últimos 7 días</div>
+            <div class="bar-chart" id="bar-chart"></div>
+          </div>
+        </div>
+
+        <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="kpi-card dark">
+            <div class="kpi-label">Pedidos pendientes</div>
+            <div class="kpi-num" id="k-pendientes">—</div>
+            <div class="kpi-sub">Sin respuesta del fletero</div>
+          </div>
+          <div class="kpi-card dark">
+            <div class="kpi-label">Fleteros registrados</div>
+            <div class="kpi-num" id="k-fleteros">—</div>
+            <div class="kpi-sub">En Firebase Auth</div>
+          </div>
+          <div class="kpi-card dark">
+            <div class="kpi-label">Precio promedio</div>
+            <div class="kpi-num" id="k-precio-avg">—</div>
+            <div class="kpi-sub">Por pedido aceptado</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LEADS ── -->
+      <div class="tab-panel" id="tab-leads">
+        <div class="page-hdr">
+          <div>
+            <div class="page-title">Leads de empresas</div>
+            <div class="page-sub">Empresas que se registraron desde la web</div>
+          </div>
+          <button class="refresh-btn" onclick="loadAll()">↻ Actualizar</button>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Registros</div>
+            <div class="table-count" id="leads-count">Cargando...</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Nombre</th>
+                  <th>Empresa</th>
+                  <th>WhatsApp</th>
+                  <th>Email</th>
+                  <th>Zona</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="leads-tbody">
+                <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray);">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PEDIDOS ── -->
+      <div class="tab-panel" id="tab-pedidos">
+        <div class="page-hdr">
+          <div>
+            <div class="page-title">Pedidos web</div>
+            <div class="page-sub">Todos los pedidos enviados desde la web</div>
+          </div>
+          <button class="refresh-btn" onclick="loadAll()">↻ Actualizar</button>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Historial completo</div>
+            <div class="table-count" id="pedidos-count">Cargando...</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha pedido</th>
+                  <th>Cliente</th>
+                  <th>WhatsApp</th>
+                  <th>Origen</th>
+                  <th>Destino</th>
+                  <th>Fecha mudanza</th>
+                  <th>Vehículo</th>
+                  <th>Empresa</th>
+                  <th>Precio</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="pedidos-tbody">
+                <tr><td colspan="10" style="text-align:center;padding:32px;color:var(--gray);">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FLETEROS ── -->
+      <div class="tab-panel" id="tab-fleteros">
+        <div class="page-hdr">
+          <div>
+            <div class="page-title">Fleteros</div>
+            <div class="page-sub">Empresas activas en el panel</div>
+          </div>
+          <button class="refresh-btn" onclick="loadAll()">↻ Actualizar</button>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Empresas registradas</div>
+            <div class="table-count" id="fleteros-count">Cargando...</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Empresa</th>
+                  <th>ID</th>
+                  <th>Pedidos recibidos</th>
+                  <th>Aceptados</th>
+                  <th>Rechazados</th>
+                  <th>Pendientes</th>
+                  <th>Facturación</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="fleteros-tbody">
+                <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray);">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MEMBRESÍAS ── -->
+      <div class="tab-panel" id="tab-membresias">
+        <div class="page-hdr">
+          <div>
+            <div class="page-title">Membresías y facturación</div>
+            <div class="page-sub">Seguimiento de planes, MRR y proyección de ingresos</div>
+          </div>
+          <button class="refresh-btn" onclick="loadAll()">↻ Actualizar</button>
+        </div>
+
+        <!-- KPIs financieros -->
+        <div class="mrr-grid">
+          <div class="mrr-card green">
+            <div class="mrr-label">MRR actual</div>
+            <div class="mrr-num" id="m-mrr">$0</div>
+            <div class="mrr-sub">Ingresos mensuales recurrentes</div>
+          </div>
+          <div class="mrr-card orange">
+            <div class="mrr-label">ARR proyectado</div>
+            <div class="mrr-num" id="m-arr">$0</div>
+            <div class="mrr-sub">MRR × 12</div>
+          </div>
+          <div class="mrr-card dark">
+            <div class="mrr-label">Miembros activos</div>
+            <div class="mrr-num" id="m-activos">0</div>
+            <div class="mrr-sub">Membresías vigentes</div>
+          </div>
+          <div class="mrr-card red">
+            <div class="mrr-label">En período gratis</div>
+            <div class="mrr-num" id="m-gratis">0</div>
+            <div class="mrr-sub">Próximos a facturar</div>
+          </div>
+        </div>
+
+        <!-- Próximas facturaciones -->
+        <div class="table-card" style="margin-bottom:20px;">
+          <div class="table-hdr">
+            <div class="table-title">⚡ Próximas a facturar (30 días)</div>
+            <div class="table-count" id="proximas-count">—</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Empresa</th><th>Plan</th><th>Inicio período gratis</th><th>Factura desde</th><th>Monto mensual</th><th>Días restantes</th></tr></thead>
+              <tbody id="proximas-tbody"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--gray);">Sin datos</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Agregar membresía -->
+        <div class="mem-form">
+          <div class="mem-form-title">+ Agregar membresía</div>
+          <div class="mem-grid">
+            <div class="mem-field">
+              <label>Empresa</label>
+              <input class="mem-input" id="mem-empresa" type="text" placeholder="Nombre empresa"/>
+            </div>
+            <div class="mem-field">
+              <label>Plan</label>
+              <select class="mem-input" id="mem-plan">
+                <option value="gratis">🎁 Gratis (3 meses)</option>
+                <option value="basic">Basic — $80.000/mes</option>
+                <option value="pro">Pro — $150.000/mes</option>
+              </select>
+            </div>
+            <div class="mem-field">
+              <label>Fecha de inicio</label>
+              <input class="mem-input" id="mem-fecha" type="date"/>
+            </div>
+            <div class="mem-field">
+              <label>Monto mensual ($)</label>
+              <input class="mem-input" id="mem-monto" type="number" placeholder="80000"/>
+            </div>
+            <div class="mem-field">
+              <label>Estado</label>
+              <select class="mem-input" id="mem-status">
+                <option value="prueba">En período gratis</option>
+                <option value="activa">Activa (pagando)</option>
+                <option value="vencida">Vencida</option>
+              </select>
+            </div>
+            <button class="mem-add-btn" onclick="addMembresia()">Guardar →</button>
+          </div>
+        </div>
+
+        <!-- Tabla membresías -->
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Todas las membresías</div>
+            <div class="table-count" id="mem-count">—</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Empresa</th>
+                  <th>Plan</th>
+                  <th>Estado</th>
+                  <th>Inicio</th>
+                  <th>Factura desde</th>
+                  <th>Monto/mes</th>
+                  <th>Facturado total</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="mem-tbody"><tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray);">Sin membresías cargadas</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════
+const FIREBASE_URL = 'https://nomade-68bdc-default-rtdb.firebaseio.com';
+const CREDS = { user: 'nomade', pass: 'nomade2024!' }; // Cambiar contraseña
+
+// ══════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════
+function doLogin() {
+  const user = document.getElementById('l-user').value.trim();
+  const pass = document.getElementById('l-pass').value;
+  const err  = document.getElementById('l-error');
+
+  if (user === CREDS.user && pass === CREDS.pass) {
+    document.getElementById('page-login').style.display = 'none';
+    document.getElementById('page-app').style.display = 'block';
+    loadAll();
+  } else {
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+
+function doLogout() {
+  document.getElementById('page-app').style.display = 'none';
+  document.getElementById('page-login').style.display = 'flex';
+  document.getElementById('l-pass').value = '';
+}
+
+// ══════════════════════════════════════
+//  FIREBASE
+// ══════════════════════════════════════
+async function fbGet(path) {
+  try {
+    const r = await fetch(`${FIREBASE_URL}/${path}.json`);
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+// ══════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════
+function showTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('nav-'+tab).classList.add('active');
+}
+
+// ══════════════════════════════════════
+//  LOAD ALL DATA
+// ══════════════════════════════════════
+let allPedidos = [], allLeads = [], allEmpresas = {};
+
+async function loadAll() {
+  setSyncStatus('loading');
+  const [pedidosRaw, leadsRaw, empresasAuthRaw] = await Promise.all([
+    fbGet('pedidos'),
+    fbGet('leads_empresas'),
+    fbGet('empresas_auth')
+  ]);
+
+  allPedidos = pedidosRaw ? Object.values(pedidosRaw) : [];
+  allLeads   = leadsRaw   ? Object.values(leadsRaw)   : [];
+  allEmpresas = empresasAuthRaw || {};
+
+  renderKPIs();
+  renderLeads();
+  renderPedidos();
+  renderFleteros();
+  setSyncStatus('ok');
+
+  // Fecha actualización
+  document.getElementById('kpi-fecha').textContent =
+    'Actualizado: ' + new Date().toLocaleString('es-AR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+}
+
+function setSyncStatus(s) {
+  const dot  = document.getElementById('sync-dot');
+  const text = document.getElementById('sync-text');
+  if (s === 'loading') {
+    dot.className = 'sync-dot loading';
+    text.textContent = 'Cargando...';
+  } else {
+    dot.className = 'sync-dot';
+    text.textContent = '● Conectado';
+  }
+}
+
+// ══════════════════════════════════════
+//  KPIs
+// ══════════════════════════════════════
+function renderKPIs() {
+  const total     = allPedidos.length;
+  const aceptados = allPedidos.filter(p => p.estado === 'aceptado');
+  const pendientes = allPedidos.filter(p => p.estado === 'pendiente');
+  const conv      = total > 0 ? Math.round(aceptados.length / total * 100) : 0;
+  const facturacion = aceptados.reduce((s, p) => s + (parseInt(p.precio)||0), 0);
+  const avgPrecio = aceptados.length > 0 ? Math.round(facturacion / aceptados.length) : 0;
+
+  document.getElementById('k-pedidos').textContent     = total;
+  document.getElementById('k-aceptados').textContent   = aceptados.length;
+  document.getElementById('k-conv').textContent        = conv + '% conversión';
+  document.getElementById('k-facturacion').textContent = facturacion > 0 ? '$' + (facturacion/1000).toFixed(0) + 'K' : '$0';
+  document.getElementById('k-leads').textContent       = allLeads.length;
+  document.getElementById('k-pendientes').textContent  = pendientes.length;
+  document.getElementById('k-fleteros').textContent    = Object.keys(allEmpresas).length;
+  document.getElementById('k-precio-avg').textContent  = avgPrecio > 0 ? '$' + (avgPrecio/1000).toFixed(0) + 'K' : '—';
+
+  // Badges sidebar
+  const lBadge = document.getElementById('leads-badge');
+  const pBadge = document.getElementById('pedidos-badge');
+  if (allLeads.length > 0) { lBadge.style.display=''; lBadge.textContent=allLeads.length; } else lBadge.style.display='none';
+  if (pendientes.length > 0) { pBadge.style.display=''; pBadge.textContent=pendientes.length; } else pBadge.style.display='none';
+
+  // Alerta pedidos sin respuesta
+  const alertEl = document.getElementById('kpi-alert');
+  if (pendientes.length > 0) {
+    document.getElementById('alert-msg').textContent = `Hay ${pendientes.length} pedido${pendientes.length>1?'s':''} pendiente${pendientes.length>1?'s':''} sin respuesta del fletero.`;
+    alertEl.style.display = 'flex';
+  } else {
+    alertEl.style.display = 'none';
+  }
+
+  renderDonut(aceptados.length, pendientes.length, allPedidos.filter(p=>p.estado==='rechazado').length);
+  renderBarChart();
+}
+
+function renderDonut(acep, pend, rech) {
+  const canvas = document.getElementById('donut-chart');
+  const ctx = canvas.getContext('2d');
+  const total = acep + pend + rech || 1;
+  const data = [
+    { val: acep, color: '#16A34A' },
+    { val: pend, color: '#D97706' },
+    { val: rech, color: '#DC2626' },
+  ];
+  ctx.clearRect(0, 0, 80, 80);
+  let start = -Math.PI / 2;
+  data.forEach(d => {
+    const slice = (d.val / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(40, 40);
+    ctx.arc(40, 40, 36, start, start + slice);
+    ctx.closePath();
+    ctx.fillStyle = d.color;
+    ctx.fill();
+    start += slice;
+  });
+  // Donut hole
+  ctx.beginPath();
+  ctx.arc(40, 40, 22, 0, Math.PI * 2);
+  ctx.fillStyle = 'white';
+  ctx.fill();
+
+  const legend = document.getElementById('donut-legend');
+  const labels = ['Aceptados', 'Pendientes', 'Rechazados'];
+  const colors = ['#16A34A', '#D97706', '#DC2626'];
+  const vals   = [acep, pend, rech];
+  legend.innerHTML = labels.map((l, i) => `
+    <div class="dl-item">
+      <div class="dl-dot" style="background:${colors[i]}"></div>
+      <span class="dl-label">${l}</span>
+      <span class="dl-val">${vals[i]}</span>
+    </div>`).join('');
+}
+
+function renderBarChart() {
+  const container = document.getElementById('bar-chart');
+  const days = [];
+  const today = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    const label = d.toLocaleDateString('es-AR', {weekday:'short'}).slice(0,2);
+    const count = allPedidos.filter(p => (p.timestamp||'').startsWith(key)).length;
+    days.push({ label, count, key });
+  }
+  const max = Math.max(...days.map(d => d.count), 1);
+  container.innerHTML = days.map(d => `
+    <div class="bar-wrap">
+      <div class="bar" style="height:${Math.max(d.count/max*70,4)}px;" title="${d.count} pedidos"></div>
+      <div class="bar-label">${d.label}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════
+//  LEADS
+// ══════════════════════════════════════
+function renderLeads() {
+  const tbody = document.getElementById('leads-tbody');
+  document.getElementById('leads-count').textContent = allLeads.length + ' registros';
+
+  if (allLeads.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-title">Sin leads todavía</div></div></td></tr>`;
+    return;
+  }
+
+  const sorted = [...allLeads].sort((a,b) => (b.timestamp||'').localeCompare(a.timestamp||''));
+  tbody.innerHTML = sorted.map(l => {
+    const fecha = l.timestamp ? new Date(l.timestamp).toLocaleDateString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    const waLink = l.wapp ? `https://wa.me/549${l.wapp.replace(/\D/g,'')}` : null;
+    return `<tr>
+      <td class="mono">${fecha}</td>
+      <td><strong>${l.nombre||'—'}</strong></td>
+      <td>${l.empresa||'—'}</td>
+      <td>${waLink ? `<a href="${waLink}" target="_blank" style="color:var(--green);font-weight:600;text-decoration:none;">📲 ${l.wapp}</a>` : '—'}</td>
+      <td>${l.email||'—'}</td>
+      <td>${l.zona||'—'}</td>
+      <td><span class="badge nuevo">Nuevo</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  PEDIDOS
+// ══════════════════════════════════════
+function renderPedidos() {
+  const tbody = document.getElementById('pedidos-tbody');
+  document.getElementById('pedidos-count').textContent = allPedidos.length + ' pedidos';
+
+  if (allPedidos.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Sin pedidos todavía</div></div></td></tr>`;
+    return;
+  }
+
+  const sorted = [...allPedidos].sort((a,b) => (b.timestamp||'').localeCompare(a.timestamp||''));
+  tbody.innerHTML = sorted.map(p => {
+    const fechaTs = p.timestamp ? new Date(p.timestamp).toLocaleDateString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    const fechaMud = p.fecha ? new Date(p.fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'numeric',month:'short'}) : '—';
+    const precio = p.precio ? '$' + parseInt(p.precio).toLocaleString('es-AR') : '—';
+    const waLink = p.clienteWapp ? `https://wa.me/549${p.clienteWapp.replace(/\D/g,'')}` : null;
+    const vehiculo = p.vehiculoLabel || p.tamano || '—';
+    const badgeClass = p.estado === 'aceptado' ? 'aceptado' : p.estado === 'rechazado' ? 'rechazado' : 'pendiente';
+    return `<tr>
+      <td class="mono">${fechaTs}</td>
+      <td><strong>${p.clienteNombre||'—'}</strong></td>
+      <td>${waLink ? `<a href="${waLink}" target="_blank" style="color:var(--green);font-weight:600;text-decoration:none;">📲 ${p.clienteWapp}</a>` : '—'}</td>
+      <td>${p.origen||'—'}</td>
+      <td>${p.destino||'—'}</td>
+      <td class="mono">${fechaMud}</td>
+      <td>${vehiculo}</td>
+      <td>${p.empresaNombre||'—'}</td>
+      <td><strong>${precio}</strong></td>
+      <td><span class="badge ${badgeClass}">${p.estado||'—'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  FLETEROS
+// ══════════════════════════════════════
+function renderFleteros() {
+  const tbody = document.getElementById('fleteros-tbody');
+  const empresas = Object.values(allEmpresas);
+  document.getElementById('fleteros-count').textContent = empresas.length + ' empresas';
+
+  if (empresas.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🚛</div><div class="empty-title">Sin fleteros registrados</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = empresas.map(e => {
+    const empId = e.id || e.empresaId;
+    const pedidosEmp = allPedidos.filter(p => parseInt(p.empresaId) === parseInt(empId));
+    const acep  = pedidosEmp.filter(p => p.estado === 'aceptado');
+    const rech  = pedidosEmp.filter(p => p.estado === 'rechazado');
+    const pend  = pedidosEmp.filter(p => p.estado === 'pendiente');
+    const facturacion = acep.reduce((s,p) => s+(parseInt(p.precio)||0), 0);
+    const activo = pedidosEmp.length > 0;
+    return `<tr>
+      <td><strong>${e.nombre||'—'}</strong></td>
+      <td class="mono" style="color:var(--gray)">${empId||'—'}</td>
+      <td><strong>${pedidosEmp.length}</strong></td>
+      <td style="color:var(--green);font-weight:700">${acep.length}</td>
+      <td style="color:var(--red)">${rech.length}</td>
+      <td style="color:var(--yellow)">${pend.length}</td>
+      <td><strong>${facturacion > 0 ? '$'+(facturacion/1000).toFixed(0)+'K' : '—'}</strong></td>
+      <td><span class="badge ${activo?'activo':'inactivo'}">${activo?'Activo':'Sin pedidos'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  MEMBRESÍAS
+// ══════════════════════════════════════
+let allMembresias = [];
+
+async function loadMembresias() {
+  const raw = await fbGet('membresias');
+  allMembresias = raw ? Object.values(raw) : [];
+  renderMembresias();
+}
+
+async function addMembresia() {
+  const empresa = document.getElementById('mem-empresa').value.trim();
+  const plan    = document.getElementById('mem-plan').value;
+  const fecha   = document.getElementById('mem-fecha').value;
+  const monto   = parseInt(document.getElementById('mem-monto').value) || 0;
+  const status  = document.getElementById('mem-status').value;
+
+  if (!empresa || !fecha) { alert('Completá empresa y fecha de inicio'); return; }
+
+  const PLAN_LABELS = { gratis: '🎁 Gratis (3 meses)', basic: 'Basic', pro: 'Pro' };
+
+  // Calcular fecha de inicio de facturación (inicio + 3 meses si es gratis)
+  const inicioDate = new Date(fecha);
+  const facturaDesde = new Date(inicioDate);
+  if (plan === 'gratis') facturaDesde.setMonth(facturaDesde.getMonth() + 3);
+
+  const mem = {
+    id: 'mem_' + Date.now(),
+    empresa,
+    plan,
+    planLabel: PLAN_LABELS[plan] || plan,
+    fechaInicio: fecha,
+    facturaDesde: facturaDesde.toISOString().split('T')[0],
+    monto,
+    status,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    await fetch(`${FIREBASE_URL}/membresias/${mem.id}.json`, {
+      method: 'PUT',
+      body: JSON.stringify(mem),
+      headers: {'Content-Type':'application/json'}
+    });
+    allMembresias.push(mem);
+    renderMembresias();
+    // Limpiar
+    document.getElementById('mem-empresa').value = '';
+    document.getElementById('mem-fecha').value = '';
+    document.getElementById('mem-monto').value = '';
+  } catch(e) { alert('Error guardando'); }
+}
+
+async function deleteMembresia(id) {
+  if (!confirm('¿Eliminar esta membresía?')) return;
+  await fetch(`${FIREBASE_URL}/membresias/${id}.json`, { method: 'DELETE' });
+  allMembresias = allMembresias.filter(m => m.id !== id);
+  renderMembresias();
+}
+
+function renderMembresias() {
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+
+  const activas  = allMembresias.filter(m => m.status === 'activa');
+  const enPrueba = allMembresias.filter(m => m.status === 'prueba');
+  const mrr = activas.reduce((s,m) => s + (parseInt(m.monto)||0), 0);
+  const arr = mrr * 12;
+
+  document.getElementById('m-mrr').textContent     = mrr > 0 ? '$' + mrr.toLocaleString('es-AR') : '$0';
+  document.getElementById('m-arr').textContent     = arr > 0 ? '$' + (arr/1000000).toFixed(1) + 'M' : '$0';
+  document.getElementById('m-activos').textContent = activas.length;
+  document.getElementById('m-gratis').textContent  = enPrueba.length;
+  document.getElementById('mem-count').textContent = allMembresias.length + ' membresías';
+
+  // Badge sidebar
+  const badge = document.getElementById('mem-badge');
+  if (enPrueba.length > 0) { badge.style.display=''; badge.textContent=enPrueba.length; }
+  else badge.style.display='none';
+
+  // Próximas a facturar (en los próximos 30 días)
+  const proximas30 = allMembresias.filter(m => {
+    if (m.status !== 'prueba' || !m.facturaDesde) return false;
+    const diff = (new Date(m.facturaDesde) - today) / (1000*60*60*24);
+    return diff >= 0 && diff <= 30;
+  }).sort((a,b) => a.facturaDesde.localeCompare(b.facturaDesde));
+
+  document.getElementById('proximas-count').textContent = proximas30.length + ' empresas';
+  const ptbody = document.getElementById('proximas-tbody');
+  if (proximas30.length === 0) {
+    ptbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--gray);">Ninguna en los próximos 30 días</td></tr>`;
+  } else {
+    ptbody.innerHTML = proximas30.map(m => {
+      const diff = Math.ceil((new Date(m.facturaDesde) - today) / (1000*60*60*24));
+      const urgente = diff <= 7;
+      return `<tr>
+        <td><strong>${m.empresa}</strong></td>
+        <td><span class="badge plan-${m.plan}">${m.planLabel}</span></td>
+        <td class="mono">${m.fechaInicio}</td>
+        <td class="mono" style="color:var(--orange);font-weight:700">${m.facturaDesde}</td>
+        <td><strong>$${(parseInt(m.monto)||0).toLocaleString('es-AR')}/mes</strong></td>
+        <td style="color:${urgente?'var(--red)':'var(--yellow)'};font-weight:700">${diff} días</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Tabla principal
+  const tbody = document.getElementById('mem-tbody');
+  if (allMembresias.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray);">Sin membresías cargadas todavía</td></tr>`;
+    return;
+  }
+
+  const sorted = [...allMembresias].sort((a,b) => (b.timestamp||'').localeCompare(a.timestamp||''));
+  tbody.innerHTML = sorted.map(m => {
+    const inicio = m.fechaInicio ? new Date(m.fechaInicio+'T12:00').toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'2-digit'}) : '—';
+    const factura = m.facturaDesde ? new Date(m.facturaDesde+'T12:00').toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'2-digit'}) : '—';
+    // Calcular facturado total (meses desde facturaDesde hasta hoy)
+    let facturadoTotal = 0;
+    if (m.status === 'activa' && m.facturaDesde && m.monto) {
+      const mesesFacturados = Math.max(0, Math.floor((today - new Date(m.facturaDesde+'T12:00')) / (1000*60*60*24*30)));
+      facturadoTotal = mesesFacturados * (parseInt(m.monto)||0);
+    }
+    return `<tr>
+      <td><strong>${m.empresa}</strong></td>
+      <td><span class="badge plan-${m.plan}">${m.planLabel}</span></td>
+      <td><span class="badge status-${m.status}">${{prueba:'En prueba',activa:'Activa',vencida:'Vencida'}[m.status]||m.status}</span></td>
+      <td class="mono">${inicio}</td>
+      <td class="mono">${factura}</td>
+      <td><strong>${m.monto ? '$'+parseInt(m.monto).toLocaleString('es-AR') : '—'}</strong></td>
+      <td>${facturadoTotal > 0 ? '<strong>$'+facturadoTotal.toLocaleString('es-AR')+'</strong>' : '—'}</td>
+      <td><button class="del-btn" onclick="deleteMembresia('${m.id}')">🗑</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// Override loadAll para incluir membresías
+const _origLoadAll = loadAll;
+async function loadAll() {
+  setSyncStatus('loading');
+  const [pedidosRaw, leadsRaw, empresasAuthRaw, memRaw] = await Promise.all([
+    fbGet('pedidos'),
+    fbGet('leads_empresas'),
+    fbGet('empresas_auth'),
+    fbGet('membresias')
+  ]);
+  allPedidos   = pedidosRaw   ? Object.values(pedidosRaw)   : [];
+  allLeads     = leadsRaw     ? Object.values(leadsRaw)     : [];
+  allEmpresas  = empresasAuthRaw || {};
+  allMembresias = memRaw      ? Object.values(memRaw)       : [];
+
+  renderKPIs();
+  renderLeads();
+  renderPedidos();
+  renderFleteros();
+  renderMembresias();
+  setSyncStatus('ok');
+  document.getElementById('kpi-fecha').textContent =
+    'Actualizado: ' + new Date().toLocaleString('es-AR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+}
+</script>
+</body>
+</html>
